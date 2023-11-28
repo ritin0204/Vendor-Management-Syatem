@@ -1,0 +1,52 @@
+# Ignore Python bytecode files
+__pycache__/
+*.pyc
+
+# Ignore virtual environment
+env/
+
+# Ignore Django database file
+db.sqlite3
+
+# Ignore local settings file
+local_settings.py
+
+# Ignore static files
+/static/
+
+# Ignore media files
+/media/
+
+# Ignore secret key
+*.secret
+
+# Ignore environment variables file
+.env
+
+# Ignore log files
+*.log
+
+# Ignore database migrations (if managed outside the app)
+**/migrations/
+
+# Ignore IDE or editor-specific files
+.vscode/
+.idea/
+*.pyc
+*.pyo
+*.pyd
+*.db
+*.sqlite3
+*.log
+*.DS_Store
+
+# Ignore compiled Python files
+*.pyc
+
+# Ignore coverage reports
+htmlcov/
+
+# Ignore pipenv or poetry virtual environments
+Pipfile
+Pipfile.lock
+poetry.lock
