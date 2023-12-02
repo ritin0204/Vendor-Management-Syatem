@@ -2,6 +2,8 @@
 __pycache__/
 *.pyc
 
+# Igonre flake8 file
+.flake8
 # Ignore virtual environment
 env/
 
