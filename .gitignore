@@ -52,3 +52,7 @@ htmlcov/
 Pipfile
 Pipfile.lock
 poetry.lock
+
+# self Ignore
+.gitignore
+.pycodestyle
