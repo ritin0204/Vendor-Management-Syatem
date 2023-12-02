@@ -46,7 +46,7 @@ This project implements a Vendor Management System using Django and Django REST 
 
 1. Clone the repository.
    ```bash
-   git clone https://github.com/yourusername/django-vendor-management.git
+   git clone https://github.com/ritin0204/Vendor-Management-Syatem.git
    ```
 
 2. Create a virtual environment and install dependencies.

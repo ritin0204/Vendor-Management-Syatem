@@ -215,6 +215,10 @@ class PurchaseOrderAPITestCase(APITestCase):
 
 class VendorPerformanceAPIs(APITestCase):
     def setUp(self) -> None:
+        # Creating Acccess Token
+        self.access_token = AdminAccessToken().admin_access_token
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {self.access_token}')
+
         self.vendor_data = {
             'name': 'Test Vendor',
             'contact_details': 'Vendor Contact',
@@ -228,7 +232,7 @@ class VendorPerformanceAPIs(APITestCase):
         self.ids = []
         for po_number in self.purchase_orders_numbers:
             po_data = {
-                "po_number": f"P00{po_number}",
+                "po_number": f"PT00{po_number}",
                 "items": [
                     "item1",
                     "item2",
@@ -255,6 +259,18 @@ class VendorPerformanceAPIs(APITestCase):
                     reverse('purchase-order-detail', args=[pk]),
                     data = {'status':'CONCELLED'}
                 )
+        response = self.client.get(
+            reverse('vendor-performance',
+                    args=[self.vendor.pk])
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_avg_response_time(self):
+        for pk in self.ids:
+            response = self.client.post(
+                reverse('acknowledge_purchase_order', args=[pk]),
+            )
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
         response = self.client.get(
             reverse('vendor-performance',
                     args=[self.vendor.pk])

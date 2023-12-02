@@ -1,5 +1,10 @@
-from .models import Vendor, PurchaseOrder
+from .models import PurchaseOrder
 from django.db.models import Q
+
+
+def time_diffrence_in_float_days(date1, date2):
+    diff = date2 - date1
+    return (diff.total_seconds())/ (24 * 3600)
 
 
 def update_on_time_delivery_rate(pk, on_time):
@@ -52,7 +57,25 @@ def update_fulfillment_rate(pk):
 
 
 def update_average_response_time(pk):
-    pass
+    purchase_order = PurchaseOrder.objects.get(pk=pk)
+    vendor = purchase_order.vendor
+    
+    old_response_time_avg = vendor.average_response_time
+    new_response_time = time_diffrence_in_float_days(
+        purchase_order.issue_date, purchase_order.delivery_date
+    )
+    
+    if old_response_time_avg is None:
+        vendor.average_response_time = new_response_time
+        vendor.save()
+        return
+    
+    total_acknoledge = PurchaseOrder.objects.filter(
+        vendor=vendor,acknowledgment_date__isnull=False).count()
+    old_total_response_time = old_response_time_avg*(total_acknoledge - 1)
+    
+    vendor.average_response_time = (old_total_response_time + new_response_time)/total_acknoledge
+    vendor.save()
 
 
 def update_quality_rating_avg(pk):
