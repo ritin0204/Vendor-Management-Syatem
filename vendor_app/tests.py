@@ -43,7 +43,6 @@ class AdminOnlyViewTests(APITestCase):
         # Assert that the response status code is 200 (OK)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-
     def test_regular_user_access(self):
         # Set the Authorization header with the regular user JWT token
         self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {self.user_access_token}')
@@ -105,10 +104,18 @@ class VendorAPITestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Vendor.objects.count(), 0)
 
+    def test_vendor_performance_api(self):
+        response = self.client.get(
+            reverse('vendor-performance',
+                    args=[self.vendor.pk]),
+            format='json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
 
 class PurchaseOrderAPITestCase(APITestCase):
     def setUp(self):
-         # Creating Acccess Token
+        # Creating Acccess Token
         self.access_token = AdminAccessToken().admin_access_token
         self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {self.access_token}')
 
@@ -166,6 +173,14 @@ class PurchaseOrderAPITestCase(APITestCase):
             response.data['quantity'], 14
         )
 
+    def test_vendor_acknowledge_api(self):
+        self.assertEqual(self.purchase_order.acknowledgment_date, None)
+        response = self.client.post(
+            reverse('acknowledge_purchase_order',
+                    args=[self.purchase_order.id])
+            )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
     def test_status_update_purchase_order_api(self):
         response = self.client.patch(
             self.purchase_details_url,
@@ -196,3 +211,52 @@ class PurchaseOrderAPITestCase(APITestCase):
         response = self.client.delete(self.purchase_details_url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(PurchaseOrder.objects.count(), 0)
+
+
+class VendorPerformanceAPIs(APITestCase):
+    def setUp(self) -> None:
+        self.vendor_data = {
+            'name': 'Test Vendor',
+            'contact_details': 'Vendor Contact',
+            'address': 'Vendor Address',
+            'vendor_code': 'V001'
+        }
+        self.vendor = Vendor.objects.create(**self.vendor_data)
+        self.purchase_orders_numbers = [
+            1, 2, 3, 4, 5, 6, 7, 8, 9, 10
+        ]
+        self.ids = []
+        for po_number in self.purchase_orders_numbers:
+            po_data = {
+                "po_number": f"P00{po_number}",
+                "items": [
+                    "item1",
+                    "item2",
+                    "item3",
+                ],
+                "quantity": 12,
+                "issue_date": timezone.now(),
+                "vendor": self.vendor
+            }
+            po_obj = PurchaseOrder.objects.create(**po_data)
+            self.ids.append(po_obj.pk)
+
+    def test_performance_api(self):
+        for pk in self.ids:
+            if pk > 8:
+                self.client.put(
+                    reverse('purchase-order-detail', args=[pk]),
+                    data = {
+                        'status':'COMPLETED',
+                        'quality_rating': 0.2+(pk/10)}
+                )
+            else:
+                self.client.put(
+                    reverse('purchase-order-detail', args=[pk]),
+                    data = {'status':'CONCELLED'}
+                )
+        response = self.client.get(
+            reverse('vendor-performance',
+                    args=[self.vendor.pk])
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)

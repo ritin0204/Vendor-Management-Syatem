@@ -62,12 +62,16 @@ This project implements a Vendor Management System using Django and Django REST 
    python manage.py makemigrations
    python manage.py migrate
    ```
-
-4. Start the development server.
+4. Create Super User to Access API which is protected by JWT authentication
+   ```bash
+   python manage.py createsuperuser
+   ```
+   
+5. Start the development server.
    ```bash
    python manage.py runserver
    ```
 
-5. Access the API at [http://127.0.0.1:8000/api/](http://127.0.0.1:8000/api/)
+6. Access the API at [http://127.0.0.1:8000/api/](http://127.0.0.1:8000/api/)
 
 Feel free to customize and extend the project based on your specific requirements.

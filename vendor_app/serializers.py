@@ -12,8 +12,8 @@ class VendorSerializer(serializers.ModelSerializer):
 class VendorPerformanceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Vendor
-        fields = ['on_time_delivery_rate', 'quality_rating_avg',
-                  'average_response_time', 'fullfillment_rate']
+        fields = ['id', 'vendor_code', 'on_time_delivery_rate', 'quality_rating_avg',
+                  'average_response_time', 'fulfillment_rate']
 
     def create(self, validated_data):
         pass
@@ -38,6 +38,11 @@ class PurchaseOrderSerializer(serializers.ModelSerializer):
             'status', 'order_date', 'delivery_date',
             'acknowledgment_date', 'quality_rating'
         ]
+
+    def update(self, instance, validated_data):
+        if validated_data.get('status', None) == 'COMPLETED':
+            validated_data['delivery_date'] = timezone.now()
+        return super().update(instance, validated_data)
 
 
 class HistoricalPerformanceSerializer(serializers.ModelSerializer):
